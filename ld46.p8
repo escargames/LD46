@@ -3,9 +3,11 @@ version 19
 __lua__
 
 #include escarlib/v1/p8u.lua
-#include escarlib/v1/logo.lua
+--#include escarlib/v1/logo.lua
+#include escarlib/v1/random.lua
 
 #include game.lua
+#include pathfind.lua
 
 __gfx__
 00000000000000000000000000000000000003330000000000000000333333330000000000000000000000000000000000000000000000000000000000000000
