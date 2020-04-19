@@ -1,6 +1,7 @@
 
-cards = {
+card_def = {
     { name = 'water',
+      count = 3,
       cost = 1,
       desc = 'water plant for 3 turns',
       turns = 3,
@@ -8,6 +9,7 @@ cards = {
     },
     {
       name = 'sun',
+      count = 3,
       cost = 1,
       desc = 'put the flower in a sunny place',
       turns = 1,
@@ -15,18 +17,32 @@ cards = {
     },
     {
       name = 'shade',
+      count = 3,
       cost = 1,
       desc = 'put the flower in the shade',
       effect = function(g) g.sun = false end,
     },
 }
 
-function new_game()
-    local deck = {}
-    for i=1,4 do
-        add(deck, cards[1+rnd(#cards)\1])
+function shuffle(t)
+    for i = 1,#t do
+        j = #t - rnd(#t-i)\1
+        if i != j then
+            t[i], t[j] = t[j], t[i]
+        end
     end
+end
+
+function new_game()
+    deck = {}
+    for i = 1,#card_def do
+        for j = 1,card_def[i].count do
+            add(deck, card_def[i])
+        end
+    end
+    shuffle(deck)
     return {
+        hand = {},
         deck = deck,
         turn = 1,
         sun = false,
@@ -43,12 +59,18 @@ function _init()
 end
 
 function _update60()
-    if #game.deck > 0 then
+    -- draw new cards if not enough
+    while #game.hand < 4 do
+        add(game.hand, game.deck[#game.deck])
+        game.deck[#game.deck] = nil
+    end
+    -- browse cards in hand
+    if #game.hand > 0 then
         if game.sel < 0 then
             game.sel = 1
         end
-        if btnp(2) then game.sel = 1 + (game.sel - 2) % #game.deck end
-        if btnp(3) then game.sel = 1 + (game.sel) % #game.deck end
+        if btnp(2) then game.sel = 1 + (game.sel - 2) % #game.hand end
+        if btnp(3) then game.sel = 1 + (game.sel) % #game.hand end
     end
 end
 
@@ -62,14 +84,14 @@ function _draw()
     print('  size '..game.size, 10, 34)
     print('  sun '..tostr(game.sun), 10, 41)
     color(12)
-    for i=1,#game.deck do
+    for i=1,#game.hand do
         local prefix = i == game.sel and '* ' or '  '
-        print(prefix..game.deck[i].name..' ['..game.deck[i].cost..']', 3, 50 + 7 * i)
+        print(prefix..game.hand[i].name..' ['..game.hand[i].cost..']', 3, 50 + 7 * i)
     end
     color(7)
     if game.sel > 0 then
         print('description:', 3, 100)
-        print(game.deck[game.sel].desc, 3, 107)
+        print(game.hand[game.sel].desc, 3, 107)
     end
 end
 
